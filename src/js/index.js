@@ -2,62 +2,75 @@
 
 window.onload = () => {
 	(() => {
-		const canvas = document.querySelector('canvas');
-		const ctx = canvas.getContext('2d');
-		const controls = document.querySelector('#controls');
+		// getting references to DOM elements
+		let canvas = document.querySelector('canvas');
+		let ctx = canvas.getContext('2d');
+		let controls = document.querySelector('#controls');
+        let audioElement = document.querySelector('audio');
+
+		// timer for control minimization
 		let timer = setTimeout(null);
 
+        // number of samples (actually half of this)
+        const NUM_SAMPLES = 4096;
+
+        // audio hook ups
+        let audioCtx = new AudioContext();
+        let analyzerNode = audioCtx.createAnalyser();
+        analyzerNode.fftSize = NUM_SAMPLES;
+        let sourceNode = audioCtx.createMediaElementSource(audioElement);
+        sourceNode.connect(analyzerNode);
+        analyzerNode.connect(audioCtx.destination);
+
+		// responsive design
 		const resizeCanvas = () => {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
 		};
+		// minimize controls
 		const minimizeControls = () => {
 			controls.classList.add('minimized');
 		};
+		// unminimize controls
 		const unminimizeControls = () => {
 			controls.classList.remove('minimized');
 		};
-		const average = array => {
-			let sum = 0;
-			for(let num of array) {
-				sum += num;
-			}
-			return sum/array.length;
-		};
-		const range = (array, start, end) => {
-			let result = [];
-			for(let i = start; i < end; i++) {
-				result.push(array[i]);
-			}
-			return result;
-		};
-		const smaller = (num1, num2) => num1 < num2 ? num1 : num2;
+		// const average = array => {
+		// 	let sum = 0;
+		// 	for(let num of array) {
+		// 		sum += num;
+		// 	}
+		// 	return sum/array.length;
+		// };
+		// const range = (array, start, end) => {
+		// 	let result = [];
+		// 	for(let i = start; i < end; i++) {
+		// 		result.push(array[i]);
+		// 	}
+		// 	return result;
+		// };
+		// const smaller = (num1, num2) => num1 < num2 ? num1 : num2;
 
 		resizeCanvas();
-
-		const NUM_SAMPLES = 4096;
-		let audioElement = document.querySelector('audio');
-		let audioCtx = new AudioContext();
-		let analyzerNode = audioCtx.createAnalyser();
-		analyzerNode.fftSize = NUM_SAMPLES;
-		let sourceNode = audioCtx.createMediaElementSource(audioElement);
-		sourceNode.connect(analyzerNode);
-		analyzerNode.connect(audioCtx.destination);
-
 		update();
 
+		// called every frame
 		function update() {
+			// recursively calling itself
 			requestAnimationFrame(update);
 
+			// frequency data array
 			let data = new Uint8Array(analyzerNode.frequencyBinCount);
 			analyzerNode.getByteFrequencyData(data);
 
+			// amount of frequencies to display per line
 			const FREQUENCIES_PER_LINE = 32;
-			const LINE_AMOUNT = NUM_SAMPLES/FREQUENCIES_PER_LINE;
+			const LINE_AMOUNT = NUM_SAMPLES / FREQUENCIES_PER_LINE;
 
+			// object to hold center of window
 			const center = {
-				x: canvas.width/2,
-				y: canvas.height/2
+				x: canvas.width / 2,
+				y: canvas.height / 2
 			};
 
       let lineArray = new Array(LINE_AMOUNT);
@@ -90,14 +103,16 @@ window.onload = () => {
             frequency /= 2;
           }
 
-          let random = Math.random() * (5 + 5) - 5;
+          const transitionLength = 3;
 
-          if (j >= FREQUENCIES_PER_LINE/4 && j <= FREQUENCIES_PER_LINE/4 + 4) {
+          // left side transition
+          if (j >= FREQUENCIES_PER_LINE / 4 && j <= (FREQUENCIES_PER_LINE / 4) + transitionLength) {
             frequency /= 10/(counterUp * 2);
             counterUp++;
           }
 
-          if (j > 3*FREQUENCIES_PER_LINE/4 - 5 && j < 3*FREQUENCIES_PER_LINE/4) {
+          // right side transition
+		  if (j >= (3 * (FREQUENCIES_PER_LINE / 4)) - transitionLength && j <= 3 * (FREQUENCIES_PER_LINE / 4)) {
             frequency /= 10/(counterDown * 2);
             counterDown--;
           }
@@ -135,4 +150,15 @@ window.onload = () => {
 			timer = setTimeout(minimizeControls,4000);
 		};
 	})();
+
+	const randomAlignment = () => {
+		for (let i = 0; i < LINE_AMOUNT; i++) {
+            let alignmentArray;
+
+            // gets random number between max and min
+            let max = 5;
+            let min = -5;
+            let random = Math.random() * (max - min) + min;
+        }
+	}
 };
