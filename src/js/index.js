@@ -5,7 +5,15 @@ window.onload = () => {
 		const canvas = document.querySelector('canvas');
 		const ctx = canvas.getContext('2d');
 		const controls = document.querySelector('#controls');
+    const invertCheck = document.querySelector('#invertCheck');
+    const songSelect = document.querySelector('#songSelect');
+    const hexPicker = document.querySelector('#hexPicker');
+    const sampleSelect = document.querySelector('#sampleSelect');
+    const numLinesSelect = document.querySelector('#numLinesSelect');
 		let timer = setTimeout(null);
+		let invert = 1;
+		let lineColor = '#fff';
+
 
 		const resizeCanvas = () => {
 			canvas.width = window.innerWidth;
@@ -31,11 +39,22 @@ window.onload = () => {
 			}
 			return result;
 		};
+    const listSamples = () => {
+      for(let i = 64; i < 8192; i *= 2) {
+        let option = document.createElement('option');
+        option.appendChild(document.createTextNode(i.toString()));
+        option.value = i;
+        sampleSelect.appendChild(option);
+      }
+    }
 		const smaller = (num1, num2) => num1 < num2 ? num1 : num2;
 
+		listSamples();
 		resizeCanvas();
 
-		const NUM_SAMPLES = 4096;
+		let NUM_SAMPLES = 4096;
+    let FREQUENCIES_PER_LINE = 32;
+    let LINE_AMOUNT = NUM_SAMPLES/FREQUENCIES_PER_LINE;
 		let audioElement = document.querySelector('audio');
 		let audioCtx = new AudioContext();
 		let analyzerNode = audioCtx.createAnalyser();
@@ -48,12 +67,10 @@ window.onload = () => {
 
 		function update() {
 			requestAnimationFrame(update);
+			analyzerNode.fftSize = NUM_SAMPLES;
 
 			let data = new Uint8Array(analyzerNode.frequencyBinCount);
 			analyzerNode.getByteFrequencyData(data);
-
-			const FREQUENCIES_PER_LINE = 32;
-			const LINE_AMOUNT = NUM_SAMPLES/FREQUENCIES_PER_LINE;
 
 			const center = {
 				x: canvas.width/2,
@@ -70,7 +87,7 @@ window.onload = () => {
       }
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 
-			ctx.strokeStyle = 'white';
+			ctx.strokeStyle = lineColor;
 			for (let i = 0; i < LINE_AMOUNT; i++) {
 			  let yOffset =  center.y/3 + i*center.y/42;
         ctx.beginPath();
@@ -102,7 +119,7 @@ window.onload = () => {
             counterDown--;
           }
 
-          ctx.lineTo(center.x/2 + j*center.x/32, yOffset - frequency);
+          ctx.lineTo(center.x/2 + j*center.x/32, yOffset - frequency*invert);
         }
         ctx.stroke();
       }
@@ -123,6 +140,24 @@ window.onload = () => {
       // ctx.closePath();
       // ctx.fill();
 		}
+
+
+    invertCheck.onchange = () => {
+      invert *= -1;
+    }
+    songSelect.onchange = e => {
+		  audioElement.src = 'assets/' + e.target.value + '.mp3'
+    }
+    hexPicker.onchange = e => {
+		  lineColor = '#' + e.target.value;
+    }
+    sampleSelect.onchange = e => {
+      NUM_SAMPLES = e.target.value;
+      numLinesSelect.max = NUM_SAMPLES/(2*3); // 2 is because there are actually half the samples
+    }
+    numLinesSelect.onchange = e => {
+
+    }
 
 		window.onresize = resizeCanvas;
 		window.onmouseout = () => {
