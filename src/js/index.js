@@ -6,6 +6,7 @@ window.onload = () => {
 		let canvas = document.querySelector('canvas');
 		let ctx = canvas.getContext('2d');
 		let controls = document.querySelector('#controls');
+		let controlsTooltip = document.querySelector('#controlsTooltip');
         let audioElement = document.querySelector('audio');
 
 		// timer for control minimization
@@ -49,6 +50,9 @@ window.onload = () => {
 		const unminimizeControls = () => {
 			controls.classList.remove('minimized');
 		};
+		const pxToInt = string => {
+			return parseInt(string.slice(0,-2));
+		}
 
 		// generates values for the number of samples select
         const listSamples = () => {
@@ -167,10 +171,20 @@ window.onload = () => {
 			clearTimeout(timer);
 			timer = setTimeout(minimizeControls,1000);
 		};
-		window.onmousemove = () => {
-			unminimizeControls();
+		window.onmousemove = e => {
 			clearTimeout(timer);
-			timer = setTimeout(minimizeControls,4000);
+			let mousePos = {
+				x: e.clientX,
+				y: e.clientY
+			};
+			let controlStyles = window.getComputedStyle(controls);
+			if(mousePos.y >= window.innerHeight - (pxToInt(controlStyles.height) + pxToInt(controlStyles.padding)*2)) {
+				controlsTooltip.classList.add('fadeOut');
+				unminimizeControls();
+			}
+			else {
+				timer = setTimeout(minimizeControls,2000);
+			}
 		};
 	})();
 
