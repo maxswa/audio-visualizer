@@ -9,7 +9,18 @@ window.onload = () => {
         let audioElement = document.querySelector('audio');
 
 		// timer for control minimization
+		const canvas = document.querySelector('canvas');
+		const ctx = canvas.getContext('2d');
+		const controls = document.querySelector('#controls');
+    const invertCheck = document.querySelector('#invertCheck');
+    const songSelect = document.querySelector('#songSelect');
+    const hexPicker = document.querySelector('#hexPicker');
+    const sampleSelect = document.querySelector('#sampleSelect');
+    const numLinesSelect = document.querySelector('#numLinesSelect');
 		let timer = setTimeout(null);
+		let invert = 1;
+		let lineColor = '#fff';
+
 
         // number of samples (actually half of this)
         const NUM_SAMPLES = 4096;
@@ -50,7 +61,31 @@ window.onload = () => {
 		// 	return result;
 		// };
 		// const smaller = (num1, num2) => num1 < num2 ? num1 : num2;
+		const average = array => {
+			let sum = 0;
+			for(let num of array) {
+				sum += num;
+			}
+			return sum/array.length;
+		};
+		const range = (array, start, end) => {
+			let result = [];
+			for(let i = start; i < end; i++) {
+				result.push(array[i]);
+			}
+			return result;
+		};
+    const listSamples = () => {
+      for(let i = 64; i < 8192; i *= 2) {
+        let option = document.createElement('option');
+        option.appendChild(document.createTextNode(i.toString()));
+        option.value = i;
+        sampleSelect.appendChild(option);
+      }
+    }
+		const smaller = (num1, num2) => num1 < num2 ? num1 : num2;
 
+		listSamples();
 		resizeCanvas();
 		update();
 
@@ -58,16 +93,12 @@ window.onload = () => {
 		function update() {
 			// recursively calling itself
 			requestAnimationFrame(update);
+			analyzerNode.fftSize = NUM_SAMPLES;
 
 			// frequency data array
 			let data = new Uint8Array(analyzerNode.frequencyBinCount);
 			analyzerNode.getByteFrequencyData(data);
 
-			// amount of frequencies to display per line
-			const FREQUENCIES_PER_LINE = 32;
-			const LINE_AMOUNT = NUM_SAMPLES / FREQUENCIES_PER_LINE;
-
-			// object to hold center of window
 			const center = {
 				x: canvas.width / 2,
 				y: canvas.height / 2
@@ -83,7 +114,7 @@ window.onload = () => {
       }
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 
-			ctx.strokeStyle = 'white';
+			ctx.strokeStyle = lineColor;
 			for (let i = 0; i < LINE_AMOUNT; i++) {
 			  let yOffset =  center.y/3 + i*center.y/42;
         ctx.beginPath();
@@ -117,7 +148,7 @@ window.onload = () => {
             counterDown--;
           }
 
-          ctx.lineTo(center.x/2 + j*center.x/32, yOffset - frequency);
+          ctx.lineTo(center.x/2 + j*center.x/32, yOffset - frequency*invert);
         }
         ctx.stroke();
       }
@@ -138,6 +169,24 @@ window.onload = () => {
       // ctx.closePath();
       // ctx.fill();
 		}
+
+
+    invertCheck.onchange = () => {
+      invert *= -1;
+    }
+    songSelect.onchange = e => {
+		  audioElement.src = 'assets/' + e.target.value + '.mp3'
+    }
+    hexPicker.onchange = e => {
+		  lineColor = '#' + e.target.value;
+    }
+    sampleSelect.onchange = e => {
+      NUM_SAMPLES = e.target.value;
+      numLinesSelect.max = NUM_SAMPLES/(2*3); // 2 is because there are actually half the samples
+    }
+    numLinesSelect.onchange = e => {
+
+    }
 
 		window.onresize = resizeCanvas;
 		window.onmouseout = () => {

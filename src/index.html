@@ -10,6 +10,26 @@
 		<canvas></canvas>
 		<div id="controls">
 			<audio controls="controls" src="assets/Never%20Look%20Back.mp3"></audio>
+			<br>
+            <label> Invert
+                <input type="checkbox" id="invertCheck">
+            </label>
+			<label> Song Select
+				<select name="song" id="songSelect">
+					<option value="Never%20Look%20Back">Never Look Back</option>
+					<option value="The%20Meaning%20Of%20Life">The Meaning of Life</option>
+				</select>
+			</label>
+			<label> Color #
+				<input type="text" id="hexPicker" value="fff">
+			</label>
+			<label> Samples
+				<select name="song" id="sampleSelect">
+				</select>
+			</label>
+			<label> Number of Lines
+				<input type="number" id="numLinesSelect" min="1" value="64">
+			</label>
 		</div>
 	</body>
 </html>
