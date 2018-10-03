@@ -9,8 +9,9 @@
 	</head>
 	<body>
 		<canvas></canvas>
-		<h2 id="controlsTooltip">mouse here for controls</h2>
 		<div id="controls" class="minimized">
+			<span id="controlTitle">controls</span>
+			<span id="controlMinimizer">v</span>
 			<div class="controlSection">
 				<div class="controlLabels">
 					invert<br>
@@ -32,7 +33,7 @@
 					</label>
 					<br>
 					<label><span class="controlElement">#</span>
-						<input type="text" id="hexPicker" value="fff" class="controlElement" maxlength="6">
+						<input type="text" id="hexPicker" value="fff" class="controlElement" maxlength="6" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 					</label>
 					<br>
 					<label>
