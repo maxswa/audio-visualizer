@@ -8,11 +8,13 @@
 		<script src="js/index.js"></script>
 	</head>
 	<body>
-		<h1>UNKNOWN VISUALIZER</h1>
+		<h1>unknown visualizer</h1>
 		<canvas></canvas>
 		<div id="controls" class="minimized">
-			<span id="controlTitle">controls</span>
-			<span id="controlMinimizer">v</span>
+			<div id="clickBar">
+				<span id="controlTitle">controls</span>
+				<span id="controlMinimizer">v</span>
+			</div>
 			<div class="controlSection">
 				<div class="controlLabels">
 					invert<br>
@@ -48,8 +50,8 @@
 					</label>
 
 				</div>
+				<audio controls="controls" src="assets/yesterday.wav"></audio>
 			</div>
-			<audio controls="controls" src="assets/yesterday.wav"></audio>
 		</div>
 	</body>
 </html>

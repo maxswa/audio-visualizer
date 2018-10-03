@@ -14,7 +14,9 @@ window.onload = () => {
 		const hexPicker = document.querySelector('#hexPicker');
 		const sampleSelect = document.querySelector('#sampleSelect');
 		const numLinesSelect = document.querySelector('#numLinesSelect');
-		let controlMinimizer = document.querySelector('#controlMinimizer');
+		const controlMinimizer = document.querySelector('#controlMinimizer');
+		const clickBar = document.querySelector('#clickBar');
+
 
 		// variable for invert functionality
 		let invert = 1;
@@ -104,6 +106,7 @@ window.onload = () => {
 			// setting line color
 			ctx.strokeStyle = lineColor;
 
+
 			// spacing the lines out evenly on the y axis
 			for (let i = 0; i < LINE_AMOUNT; i++) {
 			    let yOffset = (center.y / 2) +  (i * center.y) / 50;
@@ -118,7 +121,7 @@ window.onload = () => {
 					let frequency = lineArray[i][j];
 
 					// margins
-					if (j < FREQUENCIES_PER_LINE / 4 || j > 3 * (FREQUENCIES_PER_LINE / 4)) {
+					if (j < FREQUENCIES_PER_LINE / 4 - 2 || j > 3 * (FREQUENCIES_PER_LINE / 4)) {
 						frequency /= 10;
 					}
 					// middle
@@ -130,7 +133,7 @@ window.onload = () => {
 					const transitionLength = 3;
 
 					// left side transition
-					if (j >= FREQUENCIES_PER_LINE / 4 && j <= (FREQUENCIES_PER_LINE / 4) + transitionLength) {
+					if (j >= FREQUENCIES_PER_LINE / 4 - 2 && j < (FREQUENCIES_PER_LINE / 4) + transitionLength) {
 						frequency /= 10 / (counterUp * 2);
 						counterUp++;
 					}
@@ -166,7 +169,7 @@ window.onload = () => {
 
 		};
 		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
-		controlMinimizer.onclick = e => {
+		clickBar.onclick = e => {
 			minimized = !minimized;
 			if(minimized) {
 				controlMinimizer.classList.remove('minimized');
@@ -177,6 +180,7 @@ window.onload = () => {
 				controls.classList.remove('minimized');
 			}
 		};
+
 
 		window.onresize = resizeCanvas;
 		window.onkeypress = e => {
