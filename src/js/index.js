@@ -106,7 +106,7 @@ window.onload = () => {
 
 			// spacing the lines out evenly on the y axis
 			for (let i = 0; i < LINE_AMOUNT; i++) {
-			    let yOffset = (center.y / 3) +  (i * center.y) / 42;
+			    let yOffset = (center.y / 2) +  (i * center.y) / 50;
 			    ctx.beginPath();
 
 			    // used for transition TODO
@@ -119,11 +119,11 @@ window.onload = () => {
 
                     // margins
                     if (j < FREQUENCIES_PER_LINE / 4 || j > 3 * (FREQUENCIES_PER_LINE / 4)) {
-                    frequency /= 10;
+                        frequency /= 10;
                     }
                     // middle
                     else {
-                    frequency /= 2;
+                        frequency /= 2;
                     }
 
                     // length of transition between margins and the middle
@@ -153,7 +153,7 @@ window.onload = () => {
           invert *= -1;
         };
         songSelect.onchange = e => {
-              audioElement.src = 'assets/' + e.target.value + '.mp3'
+              audioElement.src = 'assets/' + e.target.value + '.wav'
         };
         hexPicker.onchange = e => {
               lineColor = '#' + e.target.value;

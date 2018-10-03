@@ -20,6 +20,12 @@ label, .controlElement {
     font-size: medium;
 }
 
+h1 {
+    position: absolute;
+    left:  3vw;
+    font-size: 3vw;
+}
+
 #controls {
     position: absolute;
     margin: auto;
