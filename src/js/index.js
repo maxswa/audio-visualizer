@@ -106,8 +106,8 @@ window.onload = () => {
 
 			// spacing the lines out evenly on the y axis
 			for (let i = 0; i < LINE_AMOUNT; i++) {
-				let yOffset = (center.y / 2.5) +  (i * center.y) / 50;
-				ctx.beginPath();
+			    let yOffset = (center.y / 2) +  (i * center.y) / 50;
+			    ctx.beginPath();
 
 				// used for transition TODO
 				let counterUp = 1;
@@ -149,20 +149,20 @@ window.onload = () => {
 			}
 		}
 
-		invertCheck.onchange = () => {
-			invert *= -1;
-		};
-		songSelect.onchange = e => {
-			audioElement.src = 'assets/' + e.target.value + '.mp3';
-		};
-		hexPicker.onchange = e => {
-			lineColor = '#' + e.target.value;
-		};
-		sampleSelect.onchange = e => {
-			NUM_SAMPLES = e.target.value;
-			numLinesSelect.max = NUM_SAMPLES/(2*3); // 2 is because there are actually half the samples
-		};
-		numLinesSelect.onchange = e => {
+        invertCheck.onchange = () => {
+          invert *= -1;
+        };
+        songSelect.onchange = e => {
+              audioElement.src = 'assets/' + e.target.value + '.wav'
+        };
+        hexPicker.onchange = e => {
+              lineColor = '#' + e.target.value;
+        };
+        sampleSelect.onchange = e => {
+          NUM_SAMPLES = e.target.value;
+          numLinesSelect.max = NUM_SAMPLES/(2*3); // 2 is because there are actually half the samples
+        };
+        numLinesSelect.onchange = e => {
 
 		};
 		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
