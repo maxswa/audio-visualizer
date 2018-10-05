@@ -13,25 +13,26 @@ window.onload = () => {
 		const songSelect = document.querySelector('#songSelect');
 		const hexPicker = document.querySelector('#hexPicker');
 		const sampleSelect = document.querySelector('#sampleSelect');
-		const numLinesSelect = document.querySelector('#numLinesSelect');
+		const widthSlider = document.querySelector('#widthSlider');
 		let controlMinimizer = document.querySelector('#controlMinimizer');
 
 		// variable for invert functionality
 		let invert = 1;
 		// default line color of white
 		let lineColor = '#fff';
+		let lineWidth;
 		let minimized = true;
 		let paused = true;
 
 		// number of samples (actually half of this)
-		let NUM_SAMPLES = 4096;
-		let FREQUENCIES_PER_LINE = 32;
-		let LINE_AMOUNT = NUM_SAMPLES / FREQUENCIES_PER_LINE;
+		let numSamples = 4096;
+		let frequenciesPerLine = 32;
+		let lineAmount = numSamples / frequenciesPerLine / 2;
 
 		// audio hook ups
 		let audioCtx = new AudioContext();
 		let analyzerNode = audioCtx.createAnalyser();
-		analyzerNode.fftSize = NUM_SAMPLES;
+		analyzerNode.fftSize = numSamples;
 		let sourceNode = audioCtx.createMediaElementSource(audioElement);
 		sourceNode.connect(analyzerNode);
 		analyzerNode.connect(audioCtx.destination);
@@ -41,17 +42,6 @@ window.onload = () => {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
 		};
-		// minimize controls
-		const minimizeControls = () => {
-			controls.classList.add('minimized');
-		};
-		// unminimize controls
-		const unminimizeControls = () => {
-			controls.classList.remove('minimized');
-		};
-		const pxToInt = string => {
-			return parseInt(string.slice(0,-2));
-		}
 
 		// generates values for the number of samples select
 		const listSamples = () => {
@@ -62,7 +52,7 @@ window.onload = () => {
 				option.value = i;
 				sampleSelect.appendChild(option);
 			}
-			sampleSelect.value = NUM_SAMPLES;
+			sampleSelect.value = numSamples;
 		};
 
 		listSamples();
@@ -75,7 +65,7 @@ window.onload = () => {
 			requestAnimationFrame(update);
 
 			// setting number of samples
-			analyzerNode.fftSize = NUM_SAMPLES;
+			analyzerNode.fftSize = numSamples;
 
 			// frequency data array
 			let data = new Uint8Array(analyzerNode.frequencyBinCount);
@@ -88,13 +78,13 @@ window.onload = () => {
 			};
 
 			// array of displayed lines
-			let lineArray = new Array(LINE_AMOUNT);
+			let lineArray = new Array(lineAmount);
 
 			// for line, create an array of segments
-			for (let i = 0; i < LINE_AMOUNT; i++) {
-				lineArray[i] = new Array(FREQUENCIES_PER_LINE);
-				for (let j = 0; j < FREQUENCIES_PER_LINE; j++) {
-					lineArray[i][j] = data[(i * FREQUENCIES_PER_LINE) + j];
+			for (let i = 0; i < lineAmount; i++) {
+				lineArray[i] = new Array(frequenciesPerLine);
+				for (let j = 0; j < frequenciesPerLine; j++) {
+					lineArray[i][j] = data[(i * frequenciesPerLine) + j];
 				}
 			}
 
@@ -103,22 +93,27 @@ window.onload = () => {
 
 			// setting line color
 			ctx.strokeStyle = lineColor;
+			// setting line width
+			ctx.lineWidth = lineWidth;
 
 			// spacing the lines out evenly on the y axis
-			for (let i = 0; i < LINE_AMOUNT; i++) {
+			for (let i = 0; i < lineAmount - 4; i++) {
 			    let yOffset = (center.y / 2) +  (i * center.y) / 50;
 			    ctx.beginPath();
 
-				// used for transition TODO
+                // length of transition between margins and the middle
+                const transitionLength = 3;
+
+				// used for transition
 				let counterUp = 1;
-				let counterDown = 5;
+				let counterDown = transitionLength + 1;
 
 				// for each segment in a line
-				for (let j = 0; j < FREQUENCIES_PER_LINE; j++) {
+				for (let j = 1; j < frequenciesPerLine; j++) {
 					let frequency = lineArray[i][j];
 
 					// margins
-					if (j < FREQUENCIES_PER_LINE / 4 || j > 3 * (FREQUENCIES_PER_LINE / 4)) {
+					if (j < frequenciesPerLine / 4 || j > 3 * (frequenciesPerLine / 4)) {
 						frequency /= 10;
 					}
 					// middle
@@ -126,23 +121,20 @@ window.onload = () => {
 						frequency /= 2;
 					}
 
-					// length of transition between margins and the middle
-					const transitionLength = 3;
-
 					// left side transition
-					if (j >= FREQUENCIES_PER_LINE / 4 && j <= (FREQUENCIES_PER_LINE / 4) + transitionLength) {
-						frequency /= 10 / (counterUp * 2);
+					if (j >= frequenciesPerLine / 4 && j <= (frequenciesPerLine / 4) + transitionLength) {
+						frequency /= 5 / counterUp;
 						counterUp++;
 					}
-
 					// right side transition
-					if (j >= (3 * (FREQUENCIES_PER_LINE / 4)) - transitionLength && j <= 3 * (FREQUENCIES_PER_LINE / 4)) {
-						frequency /= 10 / (counterDown * 2);
+					if (j >= (3 * (frequenciesPerLine / 4)) - transitionLength && j <= 3 * (frequenciesPerLine / 4)) {
+						frequency /= 5 / counterDown;
 						counterDown--;
 					}
 
 					// finishing the line segment
 					ctx.lineTo(center.x / 2 + j * center.x / 32, yOffset - frequency * invert);
+
 				}
 				// stroke the lines
 				ctx.stroke();
@@ -159,12 +151,12 @@ window.onload = () => {
               lineColor = '#' + e.target.value;
         };
         sampleSelect.onchange = e => {
-          NUM_SAMPLES = e.target.value;
-          numLinesSelect.max = NUM_SAMPLES/(2*3); // 2 is because there are actually half the samples
+          	numSamples = e.target.value;
         };
-        numLinesSelect.onchange = e => {
+        widthSlider.oninput = e => {
+        	lineWidth = e.target.value;
+		}
 
-		};
 		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
 		controlMinimizer.onclick = e => {
 			minimized = !minimized;
@@ -191,15 +183,4 @@ window.onload = () => {
 			}
 		}
 	})();
-
-	const randomAlignment = () => {
-		for (let i = 0; i < LINE_AMOUNT; i++) {
-			let alignmentArray;
-
-			// gets random number between max and min
-			let max = 5;
-			let min = -5;
-			let random = Math.random() * (max - min) + min;
-		}
-	}
 };
