@@ -16,12 +16,14 @@ window.onload = () => {
 		const numLinesSelect = document.querySelector('#numLinesSelect');
 		const controlMinimizer = document.querySelector('#controlMinimizer');
 		const clickBar = document.querySelector('#clickBar');
+		const intensitySlider = document.querySelector('#intensitySlider');
 
 
 		// variable for invert functionality
 		let invert = 1;
 		// default line color of white
 		let lineColor = '#fff';
+		let lineIntensity = 2;
 		let minimized = true;
 		let paused = true;
 
@@ -43,17 +45,6 @@ window.onload = () => {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
 		};
-		// minimize controls
-		const minimizeControls = () => {
-			controls.classList.add('minimized');
-		};
-		// unminimize controls
-		const unminimizeControls = () => {
-			controls.classList.remove('minimized');
-		};
-		const pxToInt = string => {
-			return parseInt(string.slice(0,-2));
-		}
 
 		// generates values for the number of samples select
 		const listSamples = () => {
@@ -126,7 +117,7 @@ window.onload = () => {
 					}
 					// middle
 					else {
-						frequency /= 2;
+						frequency /= lineIntensity;
 					}
 
 					// length of transition between margins and the middle
@@ -152,22 +143,26 @@ window.onload = () => {
 			}
 		}
 
-        invertCheck.onchange = () => {
-          invert *= -1;
-        };
-        songSelect.onchange = e => {
-              audioElement.src = 'assets/' + e.target.value + '.wav'
-        };
-        hexPicker.onchange = e => {
-              lineColor = '#' + e.target.value;
-        };
-        sampleSelect.onchange = e => {
-          NUM_SAMPLES = e.target.value;
-          numLinesSelect.max = NUM_SAMPLES/(2*3); // 2 is because there are actually half the samples
-        };
-        numLinesSelect.onchange = e => {
+		invertCheck.onchange = () => {
+			invert *= -1;
+		};
+		songSelect.onchange = e => {
+					audioElement.src = 'assets/' + e.target.value + '.wav'
+		};
+		hexPicker.onchange = e => {
+					lineColor = '#' + e.target.value;
+		};
+		sampleSelect.onchange = e => {
+			NUM_SAMPLES = e.target.value;
+			numLinesSelect.max = NUM_SAMPLES/(2*3); // 2 is because there are actually half the samples
+		};
+		numLinesSelect.onchange = e => {
 
 		};
+		intensitySlider.oninput = e => {
+			lineIntensity = e.target.value;
+		}
+
 		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
 		clickBar.onclick = e => {
 			minimized = !minimized;
