@@ -18,6 +18,7 @@ window.onload = () => {
 		const controlMinimizer = document.querySelector('#controlMinimizer');
 		const clickBar = document.querySelector('#clickBar');
 		const intensitySlider = document.querySelector('#intensitySlider');
+		const dashCheck = document.querySelector('#dashCheck');
 
 		// variable for invert functionality
 		let invert = 1;
@@ -28,6 +29,7 @@ window.onload = () => {
 		let lineWidth;
 		let minimized = true;
 		let paused = true;
+		let dashed = false;
 
 		// number of samples (actually half of this)
 		let numSamples = 4096;
@@ -207,9 +209,11 @@ window.onload = () => {
 		intensitySlider.oninput = e => {
 			lineIntensity = e.target.value;
 		};
-
+		dashCheck.onchange = () => {
+			dashed = !dashed;
+		};
 		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
-		clickBar.onclick = e => {
+		clickBar.onclick = () => {
 			minimized = !minimized;
 			if(minimized) {
 				controlMinimizer.classList.remove('minimized');
