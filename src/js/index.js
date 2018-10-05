@@ -14,12 +14,16 @@ window.onload = () => {
 		const hexPicker = document.querySelector('#hexPicker');
 		const sampleSelect = document.querySelector('#sampleSelect');
 		const widthSlider = document.querySelector('#widthSlider');
-		let controlMinimizer = document.querySelector('#controlMinimizer');
+		const controlMinimizer = document.querySelector('#controlMinimizer');
+		const clickBar = document.querySelector('#clickBar');
+		const intensitySlider = document.querySelector('#intensitySlider');
+
 
 		// variable for invert functionality
 		let invert = 1;
 		// default line color of white
 		let lineColor = '#fff';
+		let lineIntensity = 2;
 		let lineWidth;
 		let minimized = true;
 		let paused = true;
@@ -118,7 +122,7 @@ window.onload = () => {
 					}
 					// middle
 					else {
-						frequency /= 2;
+						frequency /= lineIntensity;
 					}
 
 					// left side transition
@@ -134,7 +138,6 @@ window.onload = () => {
 
 					// finishing the line segment
 					ctx.lineTo(center.x / 2 + j * center.x / 32, yOffset - frequency * invert);
-
 				}
 				// stroke the lines
 				ctx.stroke();
@@ -155,10 +158,13 @@ window.onload = () => {
         };
         widthSlider.oninput = e => {
         	lineWidth = e.target.value;
-		}
+		};
+		intensitySlider.oninput = e => {
+			lineIntensity = e.target.value;
+		};
 
 		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
-		controlMinimizer.onclick = e => {
+		clickBar.onclick = e => {
 			minimized = !minimized;
 			if(minimized) {
 				controlMinimizer.classList.remove('minimized');

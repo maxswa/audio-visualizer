@@ -8,11 +8,13 @@
 		<script src="js/index.js"></script>
 	</head>
 	<body>
-		<h1>UNKNOWN VISUALIZER</h1>
+		<h1>unknown visualizer</h1>
 		<canvas></canvas>
 		<div id="controls" class="minimized">
-			<span id="controlTitle">controls</span>
-			<span id="controlMinimizer">v</span>
+			<div id="clickBar">
+				<span id="controlTitle">controls</span>
+				<span id="controlMinimizer">v</span>
+			</div>
 			<div class="controlSection">
 				<div class="controlLabels">
 					invert<br>
@@ -20,6 +22,7 @@
 					color<br>
 					samples<br>
 					line width<br>
+					line intensity<br>
 				</div>
 				<div class="controlInputs">
 					<label class="checkboxLabel">
@@ -46,9 +49,13 @@
 					<label>
 						<input id="widthSlider" type="range" min="1" max="5" value="1">
 					</label>
+					<br>
+					<label>
+						<input type="range" min="1" max="10" value="5" class="slider" id="intensitySlider">
+					</label>
 				</div>
+				<audio controls="controls" src="assets/yesterday.wav"></audio>
 			</div>
-			<audio controls="controls" src="assets/yesterday.wav"></audio>
 		</div>
 	</body>
 </html>
