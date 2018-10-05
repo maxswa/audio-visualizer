@@ -10,6 +10,7 @@ window.onload = () => {
 
 		// user controls
 		const invertCheck = document.querySelector('#invertCheck');
+		const waveformCheck = document.querySelector('#waveformCheck');
 		const songSelect = document.querySelector('#songSelect');
 		const hexPicker = document.querySelector('#hexPicker');
 		const sampleSelect = document.querySelector('#sampleSelect');
@@ -18,9 +19,9 @@ window.onload = () => {
 		const clickBar = document.querySelector('#clickBar');
 		const intensitySlider = document.querySelector('#intensitySlider');
 
-
 		// variable for invert functionality
 		let invert = 1;
+		let waveform = false;
 		// default line color of white
 		let lineColor = '#fff';
 		let lineIntensity = 2;
@@ -68,85 +69,129 @@ window.onload = () => {
 			// recursively calling itself
 			requestAnimationFrame(update);
 
+			const renderFrequencyData = () => {
+				// object to hold center of window
+				const center = {
+					x: canvas.width / 2,
+					y: canvas.height / 2
+				};
+
+				// array of displayed lines
+				let lineArray = new Array(lineAmount);
+
+				// for line, create an array of segments
+				for (let i = 0; i < lineAmount; i++) {
+					lineArray[i] = new Array(frequenciesPerLine);
+					for (let j = 0; j < frequenciesPerLine; j++) {
+						lineArray[i][j] = data[(i * frequenciesPerLine) + j];
+					}
+				}
+
+				// clearing the canvas every frame
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+				// setting line color
+				ctx.strokeStyle = lineColor;
+				// setting line width
+				ctx.lineWidth = lineWidth;
+
+				// spacing the lines out evenly on the y axis
+				for (let i = 0; i < lineAmount - 4; i++) {
+					let yOffset = (center.y / 2) +  (i * center.y) / 50;
+					ctx.beginPath();
+
+					// length of transition between margins and the middle
+					const transitionLength = 3;
+
+					// used for transition
+					let counterUp = 1;
+					let counterDown = transitionLength + 1;
+
+					// for each segment in a line
+					for (let j = 1; j < frequenciesPerLine; j++) {
+						let frequency = lineArray[i][j];
+
+						// margins
+						if (j < frequenciesPerLine / 4 || j > 3 * (frequenciesPerLine / 4)) {
+							frequency /= 10;
+						}
+						// middle
+						else {
+							frequency /= lineIntensity;
+						}
+
+						// left side transition
+						if (j >= frequenciesPerLine / 4 && j <= (frequenciesPerLine / 4) + transitionLength) {
+							frequency /= 5 / counterUp;
+							counterUp++;
+						}
+						// right side transition
+						if (j >= (3 * (frequenciesPerLine / 4)) - transitionLength && j <= 3 * (frequenciesPerLine / 4)) {
+							frequency /= 5 / counterDown;
+							counterDown--;
+						}
+
+						// finishing the line segment
+						ctx.lineTo(center.x / 2 + j * center.x / 32, yOffset - frequency * invert);
+					}
+					// stroke the lines
+					ctx.stroke();
+				}
+			};
+
+			const renderWaveformData = () => {
+				// object to hold center of window
+				const center = {
+					x: canvas.width / 2,
+					y: canvas.height / 2
+				};
+
+				// clearing the canvas every frame
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+				// setting line color
+				ctx.strokeStyle = lineColor;
+				// setting line width
+				ctx.lineWidth = lineWidth;
+
+				// spacing the lines out evenly on the y axis
+				for (let i = 0; i < lineAmount / 4; i++) {
+					let yOffset = center.y + (i * center.y) / 15;
+					ctx.beginPath();
+
+					// for each segment in a line
+					for (let i = 0; i < data.length; i++) {
+						// finishing the line segment
+						ctx.lineTo(center.x / 2 + i * center.x / data.length, yOffset - data[i]);
+					}
+					// stroke the lines
+					ctx.stroke();
+				}
+
+			};
+
 			// setting number of samples
 			analyzerNode.fftSize = numSamples;
 
-			// frequency data array
 			let data = new Uint8Array(analyzerNode.frequencyBinCount);
-			analyzerNode.getByteFrequencyData(data);
-
-			// object to hold center of window
-			const center = {
-				x: canvas.width / 2,
-				y: canvas.height / 2
-			};
-
-			// array of displayed lines
-			let lineArray = new Array(lineAmount);
-
-			// for line, create an array of segments
-			for (let i = 0; i < lineAmount; i++) {
-				lineArray[i] = new Array(frequenciesPerLine);
-				for (let j = 0; j < frequenciesPerLine; j++) {
-					lineArray[i][j] = data[(i * frequenciesPerLine) + j];
-				}
+			if (!waveform) {
+				// frequency data
+				analyzerNode.getByteFrequencyData(data);
+				renderFrequencyData();
 			}
-
-			// clearing the canvas every frame
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-			// setting line color
-			ctx.strokeStyle = lineColor;
-			// setting line width
-			ctx.lineWidth = lineWidth;
-
-			// spacing the lines out evenly on the y axis
-			for (let i = 0; i < lineAmount - 4; i++) {
-			    let yOffset = (center.y / 2) +  (i * center.y) / 50;
-			    ctx.beginPath();
-
-                // length of transition between margins and the middle
-                const transitionLength = 3;
-
-				// used for transition
-				let counterUp = 1;
-				let counterDown = transitionLength + 1;
-
-				// for each segment in a line
-				for (let j = 1; j < frequenciesPerLine; j++) {
-					let frequency = lineArray[i][j];
-
-					// margins
-					if (j < frequenciesPerLine / 4 || j > 3 * (frequenciesPerLine / 4)) {
-						frequency /= 10;
-					}
-					// middle
-					else {
-						frequency /= lineIntensity;
-					}
-
-					// left side transition
-					if (j >= frequenciesPerLine / 4 && j <= (frequenciesPerLine / 4) + transitionLength) {
-						frequency /= 5 / counterUp;
-						counterUp++;
-					}
-					// right side transition
-					if (j >= (3 * (frequenciesPerLine / 4)) - transitionLength && j <= 3 * (frequenciesPerLine / 4)) {
-						frequency /= 5 / counterDown;
-						counterDown--;
-					}
-
-					// finishing the line segment
-					ctx.lineTo(center.x / 2 + j * center.x / 32, yOffset - frequency * invert);
-				}
-				// stroke the lines
-				ctx.stroke();
+			else {
+				// waveform data
+				analyzerNode.getByteTimeDomainData(data);
+				renderWaveformData();
 			}
 		}
 
         invertCheck.onchange = () => {
           invert *= -1;
         };
+		waveformCheck.onchange = () => {
+			waveform = !waveform;
+		};
         songSelect.onchange = e => {
               audioElement.src = 'assets/' + e.target.value + '.wav'
         };
