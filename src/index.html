@@ -18,6 +18,7 @@
 			<div class="controlSection">
 				<div class="controlLabels">
 					invert<br>
+					dashed line<br>
 					song select<br>
 					color<br>
 					samples<br>
@@ -29,6 +30,10 @@
 						<input type="checkbox" id="invertCheck" class="controlElement">
 					</label>
 					<br>
+					<label class="checkboxLabel">
+						<input type="checkbox" id="dashCheck" class="controlElement">
+					</label>
+					<br>
 					<label>
 						<select name="song" id="songSelect" class="controlElement">
 							<option value="yesterday">Yesterday</option>
@@ -38,7 +43,7 @@
 					</label>
 					<br>
 					<label><span class="controlElement">#</span>
-						<input type="text" id="hexPicker" value="fff" class="controlElement" maxlength="6" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+						<input type="text" id="hexPicker" value="fff" class="controlElement" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false">
 					</label>
 					<br>
 					<label>
@@ -47,11 +52,11 @@
 					</label>
 					<br>
 					<label>
-						<input id="widthSlider" type="range" min="1" max="5" value="1">
+						<input id="widthSlider" type="range" min="1" max="5" value="1" class="controlElement">
 					</label>
 					<br>
 					<label>
-						<input type="range" min="1" max="10" value="5" class="slider" id="intensitySlider">
+						<input type="range" min="1" max="10" value="5" id="intensitySlider" class="controlElement">
 					</label>
 				</div>
 				<audio controls="controls" src="assets/yesterday.wav"></audio>

@@ -17,6 +17,7 @@ window.onload = () => {
 		const controlMinimizer = document.querySelector('#controlMinimizer');
 		const clickBar = document.querySelector('#clickBar');
 		const intensitySlider = document.querySelector('#intensitySlider');
+		const dashCheck = document.querySelector('#dashCheck');
 
 
 		// variable for invert functionality
@@ -27,6 +28,7 @@ window.onload = () => {
 		let lineWidth;
 		let minimized = true;
 		let paused = true;
+		let dashed = false;
 
 		// number of samples (actually half of this)
 		let numSamples = 4096;
@@ -58,6 +60,7 @@ window.onload = () => {
 			}
 			sampleSelect.value = numSamples;
 		};
+
 
 		listSamples();
 		resizeCanvas();
@@ -102,11 +105,15 @@ window.onload = () => {
 
 			// spacing the lines out evenly on the y axis
 			for (let i = 0; i < lineAmount - 4; i++) {
-			    let yOffset = (center.y / 2) +  (i * center.y) / 50;
-			    ctx.beginPath();
+				let yOffset = (center.y / 2) +  (i * center.y) / 50;
 
-                // length of transition between margins and the middle
-                const transitionLength = 3;
+				// dashes the line if dashed is true
+				ctx.setLineDash(dashed ? [1,10] : []);
+
+				ctx.beginPath();
+
+				// length of transition between margins and the middle
+				const transitionLength = 3;
 
 				// used for transition
 				let counterUp = 1;
@@ -144,27 +151,29 @@ window.onload = () => {
 			}
 		}
 
-        invertCheck.onchange = () => {
-          invert *= -1;
-        };
-        songSelect.onchange = e => {
-              audioElement.src = 'assets/' + e.target.value + '.wav'
-        };
-        hexPicker.onchange = e => {
-              lineColor = '#' + e.target.value;
-        };
-        sampleSelect.onchange = e => {
-          	numSamples = e.target.value;
-        };
-        widthSlider.oninput = e => {
-        	lineWidth = e.target.value;
+		invertCheck.onchange = () => {
+			invert *= -1;
+		};
+		songSelect.onchange = e => {
+					audioElement.src = 'assets/' + e.target.value + '.wav'
+		};
+		hexPicker.oninput = e => {
+					lineColor = '#' + e.target.value;
+		};
+		sampleSelect.onchange = e => {
+				numSamples = e.target.value;
+		};
+		widthSlider.oninput = e => {
+			lineWidth = e.target.value;
 		};
 		intensitySlider.oninput = e => {
 			lineIntensity = e.target.value;
 		};
-
+		dashCheck.onchange = () => {
+			dashed = !dashed;
+		};
 		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
-		clickBar.onclick = e => {
+		clickBar.onclick = () => {
 			minimized = !minimized;
 			if(minimized) {
 				controlMinimizer.classList.remove('minimized');
