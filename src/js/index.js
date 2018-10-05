@@ -100,6 +100,9 @@ window.onload = () => {
 				// spacing the lines out evenly on the y axis
 				for (let i = 0; i < lineAmount - 4; i++) {
 					let yOffset = (center.y / 2) +  (i * center.y) / 50;
+
+					ctx.setLineDash(dashed ? [1, 10]: []);
+
 					ctx.beginPath();
 
 					// length of transition between margins and the middle
@@ -159,6 +162,9 @@ window.onload = () => {
 				// spacing the lines out evenly on the y axis
 				for (let i = 0; i < lineAmount / 4; i++) {
 					let yOffset = center.y + (i * center.y) / 15;
+
+					ctx.setLineDash(dashed ? [1, 10]: []);
+
 					ctx.beginPath();
 
 					// for each segment in a line
