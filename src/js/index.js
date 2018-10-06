@@ -11,30 +11,32 @@ window.onload = () => {
 		// user controls
 		const invertCheck = document.querySelector('#invertCheck');
 		const waveformCheck = document.querySelector('#waveformCheck');
+		const reverbCheck = document.querySelector('#reverbCheck');
+		const dashCheck = document.querySelector('#dashCheck');
 		const songSelect = document.querySelector('#songSelect');
 		const hexPicker = document.querySelector('#hexPicker');
 		const sampleSelect = document.querySelector('#sampleSelect');
 		const widthSlider = document.querySelector('#widthSlider');
+		const intensitySlider = document.querySelector('#intensitySlider');
 		const controlMinimizer = document.querySelector('#controlMinimizer');
 		const clickBar = document.querySelector('#clickBar');
-		const intensitySlider = document.querySelector('#intensitySlider');
-		const dashCheck = document.querySelector('#dashCheck');
 
-		// variable for invert functionality
+		// default variable values
 		let invert = 1;
 		let waveform = false;
-		// default line color of white
+		let reverb = false;
+		let dashed = false;
 		let lineColor = '#fff';
-		let lineIntensity = 2;
 		let lineWidth;
+		let lineIntensity = 2;
 		let minimized = true;
 		let paused = true;
-		let dashed = false;
 
 		// number of samples (actually half of this)
 		let numSamples = 4096;
 		let frequenciesPerLine = 32;
 		let lineAmount = numSamples / frequenciesPerLine / 2;
+		lineAmount -= parseInt(lineAmount / 3.5); // removes unmoving lines
 
 		// audio hook ups
 		let audioCtx = new AudioContext();
@@ -43,6 +45,19 @@ window.onload = () => {
 		let sourceNode = audioCtx.createMediaElementSource(audioElement);
 		sourceNode.connect(analyzerNode);
 		analyzerNode.connect(audioCtx.destination);
+
+		// reverb node
+		let convolverNode = audioCtx.createConvolver();
+		/* code taken from https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer */
+			let buffer = audioCtx.createBuffer(2, audioCtx.sampleRate * 3, audioCtx.sampleRate);
+			for (let i = 0; i < buffer.numberOfChannels; i++) {
+				let nowBuffering = buffer.getChannelData(i);
+				for (let j = 0; j < buffer.length; j++) {
+					nowBuffering[j] = Math.random() * 2 - 1;
+				}
+			}
+		convolverNode.buffer = buffer;
+		sourceNode.connect(convolverNode);
 
 		// responsive design
 		const resizeCanvas = () => {
@@ -71,13 +86,21 @@ window.onload = () => {
 			// recursively calling itself
 			requestAnimationFrame(update);
 
-			const renderFrequencyData = () => {
-				// object to hold center of window
-				const center = {
-					x: canvas.width / 2,
-					y: canvas.height / 2
-				};
+			// object to hold center of window
+			const center = {
+				x: canvas.width / 2,
+				y: canvas.height / 2
+			};
 
+			// clearing the canvas every frame
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			// setting line color
+			ctx.strokeStyle = lineColor;
+			// setting line width
+			ctx.lineWidth = lineWidth;
+
+			const renderFrequencyData = () => {
 				// array of displayed lines
 				let lineArray = new Array(lineAmount);
 
@@ -89,20 +112,10 @@ window.onload = () => {
 					}
 				}
 
-				// clearing the canvas every frame
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-				// setting line color
-				ctx.strokeStyle = lineColor;
-				// setting line width
-				ctx.lineWidth = lineWidth;
-
 				// spacing the lines out evenly on the y axis
-				for (let i = 0; i < lineAmount - 4; i++) {
+				for (let i = 0; i < lineAmount; i++) {
 					let yOffset = (center.y / 2) +  (i * center.y) / 50;
-
 					ctx.setLineDash(dashed ? [1, 10]: []);
-
 					ctx.beginPath();
 
 					// length of transition between margins and the middle
@@ -118,7 +131,7 @@ window.onload = () => {
 
 						// margins
 						if (j < frequenciesPerLine / 4 || j > 3 * (frequenciesPerLine / 4)) {
-							frequency /= 10;
+							frequency /= 10 * lineIntensity;
 						}
 						// middle
 						else {
@@ -145,26 +158,10 @@ window.onload = () => {
 			};
 
 			const renderWaveformData = () => {
-				// object to hold center of window
-				const center = {
-					x: canvas.width / 2,
-					y: canvas.height / 2
-				};
-
-				// clearing the canvas every frame
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-				// setting line color
-				ctx.strokeStyle = lineColor;
-				// setting line width
-				ctx.lineWidth = lineWidth;
-
 				// spacing the lines out evenly on the y axis
 				for (let i = 0; i < lineAmount / 4; i++) {
 					let yOffset = center.y + (i * center.y) / 15;
-
 					ctx.setLineDash(dashed ? [1, 10]: []);
-
 					ctx.beginPath();
 
 					// for each segment in a line
@@ -175,7 +172,6 @@ window.onload = () => {
 					// stroke the lines
 					ctx.stroke();
 				}
-
 			};
 
 			// setting number of samples
@@ -194,20 +190,36 @@ window.onload = () => {
 			}
 		}
 
+		// check box changes
         invertCheck.onchange = () => {
-          invert *= -1;
+          	invert *= -1;
         };
 		waveformCheck.onchange = () => {
 			waveform = !waveform;
 		};
+		reverbCheck.onchange = () => {
+			reverb = !reverb;
+			if (reverb) {
+				convolverNode.connect(audioCtx.destination);
+			}
+			else {
+				convolverNode.disconnect(audioCtx.destination);
+			}
+		};
+		dashCheck.onchange = () => {
+			dashed = !dashed;
+		};
         songSelect.onchange = e => {
-              audioElement.src = 'assets/' + e.target.value + '.wav'
+              audioElement.src = 'assets/' + e.target.value + '.mp3'
         };
         hexPicker.onchange = e => {
-              lineColor = '#' + e.target.value;
+        	lineColor = '#' + e.target.value;
         };
         sampleSelect.onchange = e => {
           	numSamples = e.target.value;
+          	// removes unmoving lines
+          	lineAmount = numSamples / frequenciesPerLine / 2;
+          	lineAmount -= parseInt(lineAmount / 3.5);
         };
         widthSlider.oninput = e => {
         	lineWidth = e.target.value;
@@ -215,13 +227,10 @@ window.onload = () => {
 		intensitySlider.oninput = e => {
 			lineIntensity = e.target.value;
 		};
-		dashCheck.onchange = () => {
-			dashed = !dashed;
-		};
-		// Flips the minimized bool and then changes the classes of the controls div and the minimize button itself
+		// flips the minimized bool and then changes the classes of the controls div and the minimize button itself
 		clickBar.onclick = () => {
 			minimized = !minimized;
-			if(minimized) {
+			if (minimized) {
 				controlMinimizer.classList.remove('minimized');
 				controls.classList.add('minimized');
 			}
@@ -232,6 +241,7 @@ window.onload = () => {
 		};
 
 		window.onresize = resizeCanvas;
+
 		window.onkeypress = e => {
 			if(e.key === ' ') {
 				paused = !paused;

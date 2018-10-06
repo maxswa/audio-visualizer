@@ -4,22 +4,27 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=0.91, maximum-scale=1">
 		<title>Visualizer</title>
+
 		<link rel="stylesheet" href="styles.css">
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
 		<script src="js/index.js"></script>
 	</head>
+
 	<body>
 		<h1>unknown visualizer</h1>
 		<canvas></canvas>
+
 		<div id="controls" class="minimized">
 			<div id="clickBar">
 				<span id="controlTitle">controls</span>
 				<span id="controlMinimizer">v</span>
 			</div>
+
 			<div class="controlSection">
 				<div class="controlLabels">
 					invert<br>
                     waveform<br>
+                    reverb<br>
 					dashed line<br>
 					song select<br>
 					color<br>
@@ -27,19 +32,28 @@
 					line width<br>
 					line intensity<br>
 				</div>
+
 				<div class="controlInputs">
 					<label class="checkboxLabel">
 						<input type="checkbox" id="invertCheck" class="controlElement">
 					</label>
 					<br>
+
                     <label class="checkboxLabel">
                         <input type="checkbox" id="waveformCheck" class="controlElement">
                     </label>
                     <br>
+
+                    <label class="checkboxLabel">
+                        <input type="checkbox" id="reverbCheck" class="controlElement">
+                    </label>
+                    <br>
+
                     <label class="checkboxLabel">
                         <input type="checkbox" id="dashCheck" class="controlElement">
                     </label>
                     <br>
+
 					<label>
 						<select name="song" id="songSelect" class="controlElement">
 							<option value="yesterday">Yesterday</option>
@@ -48,24 +62,28 @@
 						</select>
 					</label>
 					<br>
+
 					<label><span class="controlElement">#</span>
 						<input type="text" id="hexPicker" value="fff" class="controlElement" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false">
 					</label>
 					<br>
+
 					<label>
 						<select name="song" id="sampleSelect" class="controlElement">
 						</select>
 					</label>
 					<br>
+
 					<label>
 						<input id="widthSlider" type="range" min="1" max="5" value="1" class="controlElement">
 					</label>
 					<br>
+
 					<label>
 						<input type="range" min="1" max="10" value="5" id="intensitySlider" class="controlElement">
 					</label>
 				</div>
-				<audio controls="controls" src="assets/yesterday.wav"></audio>
+				<audio controls="controls" src="assets/yesterday.mp3"></audio>
 			</div>
 		</div>
 	</body>
